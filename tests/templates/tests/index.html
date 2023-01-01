@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+{% load static %}
+{% load imagekit_static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Django Imagekit storage example</title>
+  <link rel="stylesheet" href="{% static 'tests/css/style.css' %}">
+</head>
+<body>
+  <h1>Django Imagekit storage example</h1>
+  <div>
+    <h2>Static image</h2>
+            <p>{% static 'tests/images/default-image.jpg' %}</p>
+    <img src="{% static 'tests/images/default-image.jpg' %}" alt="static image">
+  </div>
+  <div>
+    <h2>Transformed static image</h2>
+      <p>{% imagekit_static 'tests/images/default-image.jpg' width=150 height=150 %}</p>
+      <img src="{% imagekit_static 'tests/images/default-image.jpg' width=150 height=150 %}" alt="static image">
+  </div>
+</body>
+</html>
