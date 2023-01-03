@@ -5,10 +5,10 @@ from typing import Dict
 import requests
 from requests import Response
 
-from imagekit_storage import USER_CREDENTIALS
-from imagekit_storage.app_settings import UPLOAD_OPTIONS
-from imagekit_storage.defaults import Default
-from imagekit_storage.errors import ERRORS
+from imagekitio_storage import USER_CREDENTIALS
+from imagekitio_storage.app_settings import UPLOAD_OPTIONS
+from imagekitio_storage.defaults import Default
+from imagekitio_storage.errors import ERRORS
 
 
 class ImageKitResource(object):

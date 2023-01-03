@@ -1,22 +1,22 @@
 import os
 
-from django.test import TestCase
-from django.core.files.base import ContentFile
-from django.core.files import File
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.exceptions import ValidationError
+from django.core.files import File
+from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
 
-from tests.models import TestModel, TestVideoModel
+from imagekitio_storage import app_settings
+from imagekitio_storage.storage import RawMediaImagekitStorage, VideoMediaImagekitStorage
+from tests.models import TestFileFieldModel, TestFileFieldVideoModel
 from tests.tests.test_helpers import get_random_name
-from imagekit_storage.storage import RawMediaImagekitStorage, VideoMediaImagekitStorage
-from imagekit_storage import app_settings
 
 
 class TestModelTests(TestCase):
     def test_file_exists_after_model_instance_with_file_is_saved(self):
         file_name = get_random_name()
-        content = ContentFile(b'Content of model file')
-        model = TestModel(name='name')
+        content = ContentFile(b'https://imagekit.io/user/folder/filename.png?file_id=0987654321')
+        model = TestFileFieldModel(name='name')
         model.file.save(file_name, content)
         file_name = model.file.name
         storage = RawMediaImagekitStorage()
@@ -29,8 +29,8 @@ class TestModelTests(TestCase):
 class TestVideoModelTests(TestCase):
     def test_video_can_be_uploaded(self):
         file_name = get_random_name()
-        video = File(open(os.path.join('tests', 'dummy-files', 'dummy-video.mp4'), 'rb'))
-        model = TestVideoModel(name='name')
+        video = File(open(os.path.join('tests', 'files', 'video-file.mp4'), 'rb'))
+        model = TestFileFieldVideoModel(name='name')
         model.video.save(file_name, video)
         model.full_clean()
         file_name = model.video.name
@@ -41,8 +41,8 @@ class TestVideoModelTests(TestCase):
             storage.delete(file_name)
 
     def test_invalid_video_raises_valuation_error(self):
-        model = TestVideoModel(name='name')
-        invalid_file = SimpleUploadedFile(get_random_name(), b'this is not a video', content_type='video/mp4')
+        model = TestFileFieldVideoModel(name='name')
+        invalid_file = SimpleUploadedFile(get_random_name(), b'invalid video file', content_type='video/mp4')
         model.video = invalid_file
         with self.assertRaises(ValidationError) as e:
             model.full_clean()

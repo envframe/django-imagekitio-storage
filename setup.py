@@ -11,7 +11,6 @@ def read(filename):
 description = ('Django package that provides Imagekit storages for both media and static files '
                'and management commands for removing unnecessary files.')
 
-
 here = os.path.abspath(os.path.dirname(__file__))
 
 # Get the long description from the README file
@@ -19,7 +18,7 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='django-imagekit-storage',
+    name='django-imagekitio-storage',
     version='0.0.1',
     author='Envframe',
     author_email='envframe@gmail.com',
@@ -30,10 +29,10 @@ setup(
     url='https://github.com/envframe/django-imagekit-storage',
     keywords='django imagekit storage',
     packages=[
-        'imagekit_storage',
-        'imagekit_storage.templatetags',
-        'imagekit_storage.management',
-        'imagekit_storage.management.commands'],
+        'imagekitio_storage',
+        'imagekitio_storage.templatetags',
+        'imagekitio_storage.management',
+        'imagekitio_storage.management.commands'],
     include_package_data=True,
     install_requires=[
         'requests>=2.28.1',

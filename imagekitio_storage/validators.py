@@ -1,11 +1,10 @@
 import os
 
 import magic
-
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
-from imagekit_storage import app_settings
+from imagekitio_storage import app_settings
 
 
 def validate_video(value):

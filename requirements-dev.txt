@@ -2,9 +2,12 @@
 # tox-travis 0.13 depends on tox<4 and >=2.0
 tox<4,>=2.0
 Django>=4.1.4
+djangorestframework>=3.14.0
 Pillow>=9.3.0
 tox-pyenv>=1.1.0
 tox-travis>=0.13
 pluggy>=1.0.0
+django-imagekit>=4.1.0
+pilkit>=2.0
 
 -r requirements.txt

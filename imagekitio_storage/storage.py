@@ -3,6 +3,7 @@ import errno
 import json
 import os
 from urllib.parse import unquote, urlsplit, urlunsplit
+
 import requests
 from django.conf import settings
 from django.contrib.staticfiles import finders
@@ -11,11 +12,11 @@ from django.core.files.base import ContentFile, File
 from django.core.files.storage import Storage, FileSystemStorage
 from django.core.files.uploadedfile import UploadedFile
 from django.utils.deconstruct import deconstructible
+from imagekitio.exceptions.BadRequestException import BadRequestException
 from imagekitio.models.UploadFileRequestOptions import UploadFileRequestOptions
 
-from . import app_settings, imagekit
+from . import app_settings, ik_api
 from .helpers import get_resources
-from .resource import ImageKitResource
 
 RESOURCE_TYPES = {
     'IMAGE': 'image',
@@ -28,10 +29,13 @@ RESOURCE_TYPES = {
 class MediaImagekitStorage(Storage):
     RESOURCE_TYPE = RESOURCE_TYPES['IMAGE']
     TAG = app_settings.MEDIA_TAG
+    UPLOAD_OPTIONS = app_settings.UPLOAD_OPTIONS
 
-    def __init__(self, tag=None, resource_type=None):
+    def __init__(self, tag=None, resource_type=None, root_folder=None):
+        if root_folder is not None:
+            self.UPLOAD_OPTIONS['folder'] = root_folder
         if tag is not None:
-            self.TAG = tag
+            self.TAG = tag.strip('/') if tag is not None else None
         if resource_type is not None:
             self.RESOURCE_TYPE = resource_type
 
@@ -53,13 +57,15 @@ class MediaImagekitStorage(Storage):
         file.mode = mode
         return file
 
-    def _upload(self, file, file_name, options=None):
-        if options is None:
-            upload_options = app_settings.UPLOAD_OPTIONS
-            options = UploadFileRequestOptions(**upload_options)
-        return imagekit.upload_file(file=file, file_name=file_name, options=options)
+    def _upload(self, file, file_name, options):
+        return ik_api.upload(file=file, file_name=file_name, options=options)
 
     def _save(self, name, content):
+
+        self.UPLOAD_OPTIONS['folder'] = self._get_upload_path(name)
+
+        options = UploadFileRequestOptions(**self.UPLOAD_OPTIONS)
+
         name = self._normalise_name(name)
         name = self._prepend_prefix(name)
 
@@ -67,16 +73,24 @@ class MediaImagekitStorage(Storage):
 
         encoded = base64.b64encode(content.read())
 
-        response = self._upload(file=encoded, file_name=name, options=None)
-        return f"{response.name}?file_id={response.file_id}"
+        response = self._upload(file=encoded, file_name=name, options=options)
+
+        return response.file_id
 
     def delete(self, name):
+        file_id = str(name)
+
+        response = ik_api.delete_file(file_id=file_id)
+        if response:
+            return response.response_metadata
         return super().delete(name)
 
     def _get_url(self, name):
-        imagekit_resource = ImageKitResource()
-        folder = str(app_settings.UPLOAD_OPTIONS['folder']).strip('/')
-        return f"{imagekit_resource.url_endpoint}/{folder}/{name}"
+        try:
+            response = ik_api.get_file_details(file_id=name)
+            return response.url
+        except BadRequestException:
+            return name
 
     def url(self, name):
         return self._get_url(name)
@@ -109,7 +123,7 @@ class MediaImagekitStorage(Storage):
         return path
 
     def _get_prefix(self):
-        return app_settings.PREFIX
+        return app_settings.PREFIX if app_settings.PREFIX is not None else ''
 
     def _prepend_prefix(self, name):
         prefix = self._get_prefix().lstrip('/')
@@ -120,6 +134,7 @@ class MediaImagekitStorage(Storage):
 
     def listdir(self, path):
         path = self._normalize_path(path)
+        print(path)
         resources = get_resources(path)
         directories = set()
         files = []
@@ -134,6 +149,23 @@ class MediaImagekitStorage(Storage):
 
     def _normalise_name(self, name):
         return name.replace('\\', '/')
+
+    def _get_root_folder(self):
+        return self.UPLOAD_OPTIONS['folder'].strip('/') if self.UPLOAD_OPTIONS['folder'] is not None else None
+
+    def _get_upload_path(self, name):
+        root = self._get_root_folder()
+
+        folder = os.path.dirname(name)
+
+        if folder:
+            tagged_dir = f"{root}/{self.TAG}/{folder}"
+            normal_dir = f"{root}/{folder}"
+
+            folder = tagged_dir if self.TAG is not None else normal_dir
+
+            return folder
+        return root if self.TAG is None else f"{root}/{self.TAG}"
 
 
 class RawMediaImagekitStorage(MediaImagekitStorage):
@@ -160,6 +192,7 @@ class StaticImagekitStorage(MediaImagekitStorage):
     """
     RESOURCE_TYPE = RESOURCE_TYPES['RAW']
     TAG = app_settings.STATIC_TAG
+    UPLOAD_OPTIONS = app_settings.UPLOAD_OPTIONS
 
     def _get_resource_type(self, name):
         """
@@ -191,11 +224,13 @@ class StaticImagekitStorage(MediaImagekitStorage):
         return super(StaticImagekitStorage, self).url(name)
 
     def _upload(self, file, file_name, options=None):
-        if options is None:
-            upload_options = app_settings.UPLOAD_OPTIONS
-            options = UploadFileRequestOptions(**upload_options)
         name = self._remove_extension_for_non_raw_file(file_name)
-        return imagekit.upload_file(file=file, file_name=name, options=options)
+        if options is None:
+            self.UPLOAD_OPTIONS['folder'] = self._get_upload_path(name)
+
+            options = UploadFileRequestOptions(**self.UPLOAD_OPTIONS)
+
+        return ik_api.upload_file(file=file, file_name=name, options=options)
 
     def _remove_extension_for_non_raw_file(self, name):
         """
