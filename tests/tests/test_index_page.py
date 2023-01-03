@@ -1,12 +1,12 @@
 from django.test import SimpleTestCase, override_settings
 
-from imagekit_storage.storage import StaticHashedImagekitStorage
+from imagekitio_storage.storage import StaticHashedImagekitStorage
 from tests.tests.test_helpers import execute_command, StaticHashedStorageTestsMixin, import_mock
 
 mock = import_mock()
 
 
-@override_settings(STATICFILES_STORAGE='imagekit_storage.storage.StaticImagekitStorage')
+@override_settings(STATICFILES_STORAGE='imagekitio_storage.storage.StaticImagekitStorage')
 class IndexPageTestsWithUnhashedStaticStorageTests(SimpleTestCase):
     @override_settings(DEBUG=True)
     def test_urls_with_debug_true(self):
@@ -18,7 +18,7 @@ class IndexPageTestsWithUnhashedStaticStorageTests(SimpleTestCase):
         self.assertContains(response, '/raw/upload/v1/static/tests/css/style.css')
 
 
-@override_settings(STATICFILES_STORAGE='imagekit_storage.storage.StaticHashedImagekitStorage')
+@override_settings(STATICFILES_STORAGE='imagekitio_storage.storage.StaticHashedImagekitStorage')
 class IndexPageTestsWithStaticHashedStorageTests(StaticHashedStorageTestsMixin, SimpleTestCase):
     @override_settings(DEBUG=True)
     def test_urls_with_debug_true(self):
@@ -30,7 +30,7 @@ class IndexPageTestsWithStaticHashedStorageTests(StaticHashedStorageTestsMixin, 
         self.assertContains(response, '/raw/upload/v1/static/tests/css/style.{}.css'.format(self.style_hash))
 
 
-@override_settings(STATICFILES_STORAGE='imagekit_storage.storage.StaticHashedImagekitStorage')
+@override_settings(STATICFILES_STORAGE='imagekitio_storage.storage.StaticHashedImagekitStorage')
 class IndexPageTestsWithStaticHashedStorageWithManifestTests(StaticHashedStorageTestsMixin, SimpleTestCase):
     @classmethod
     def setUpClass(cls):

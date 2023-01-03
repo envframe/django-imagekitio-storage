@@ -1,10 +1,9 @@
 from django import template
-from django.utils.safestring import mark_safe
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.utils.safestring import mark_safe
 
-from imagekit_storage import imagekit
-from imagekit_storage.resource import ImageKitResource
-
+from imagekitio_storage import ik_api
+from imagekitio_storage.resource import ImageKitResource
 
 register = template.Library()
 
@@ -22,7 +21,7 @@ def imagekit_static(context, static, options_dict=None, **options):
         pass
     if not isinstance(static, ImageKitResource):
         static = staticfiles_storage.stored_name(static)
-        static = imagekit.url({
+        static = ik_api.url({
             "path": static,
             "transformation": [options],
             "transformation_position": "query"

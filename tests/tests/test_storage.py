@@ -1,14 +1,14 @@
 import errno
 import os.path
 
-from requests.exceptions import HTTPError
-from django.test import SimpleTestCase, override_settings
-from django.core.files.base import ContentFile
 from django.conf import settings
+from django.core.files.base import ContentFile
+from django.test import SimpleTestCase, override_settings
+from requests.exceptions import HTTPError
 
-from imagekit_storage.storage import (MediaImagekitStorage, ManifestImagekitStorage, StaticImagekitStorage,
+from imagekitio_storage import app_settings, imagekit
+from imagekitio_storage.storage import (MediaImagekitStorage, ManifestImagekitStorage, StaticImagekitStorage,
                                         StaticHashedImagekitStorage, RESOURCE_TYPES)
-from imagekit_storage import app_settings, imagekit
 from tests.tests.test_helpers import get_random_name, import_mock
 
 mock = import_mock()
@@ -43,7 +43,7 @@ class ImagekitMediaStorageTests(SimpleTestCase):
         self.storage.delete(file_name)
         self.assertFalse(self.storage.exists(file_name))
 
-    @mock.patch('imagekit_storage.storage.requests.head')
+    @mock.patch('imagekitio_storage.storage.requests.head')
     def test_exists_raises_http_error(self, head_mock):
         response = head_mock.return_value
         response.status_code = 500
@@ -80,7 +80,7 @@ class ImagekitMediaStorageTests(SimpleTestCase):
         with self.assertRaises(IOError):
             self.storage.open('name')
 
-    @mock.patch('imagekit_storage.storage.requests.get')
+    @mock.patch('imagekitio_storage.storage.requests.get')
     def test_opening_when_imagekit_fails_raises_error(self, get_mock):
         response = get_mock.return_value
         response.status_code = 500
@@ -226,7 +226,7 @@ class StaticImagekitStorageTests(SimpleTestCase):
         self.storage._upload(file='content', file_name='name.jpg', options=None)
         resource_type = self.storage._get_resource_type('name.jpg')
         imagekit_upload_mock.assert_called_once_with('content', public_id='name', resource_type=resource_type,
-                                                       invalidate=True, tags=self.storage.TAG)
+                                                     invalidate=True, tags=self.storage.TAG)
 
     @classmethod
     def tearDownClass(cls):
@@ -235,7 +235,7 @@ class StaticImagekitStorageTests(SimpleTestCase):
 
 
 class StaticHashedImagekitStorageTests(SimpleTestCase):
-    @mock.patch('imagekit_storage.storage.finders.find')
+    @mock.patch('imagekitio_storage.storage.finders.find')
     def test_hashed_name_raises_error_when_file_not_found(self, find_mock):
         storage = StaticHashedImagekitStorage()
         not_existing_file = get_random_name()

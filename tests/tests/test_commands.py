@@ -5,10 +5,10 @@ from django.core.files.images import ImageFile
 from django.test import SimpleTestCase, override_settings
 from django.utils import version
 
-from imagekit_storage import app_settings
-from imagekit_storage.storage import (MediaImagekitStorage, RawMediaImagekitStorage, StaticImagekitStorage,
-                                      StaticHashedImagekitStorage)
-from tests.models import TestModel, TestImageModel, TestModelWithoutFile
+from imagekitio_storage import app_settings
+from imagekitio_storage.storage import (MediaImagekitStorage, RawMediaImagekitStorage, StaticImagekitStorage,
+                                        StaticHashedImagekitStorage)
+from tests.models import TestFileFieldModel, TestFileAndImageFieldModel, TestWithoutMediaModel
 from tests.tests.test_helpers import (get_random_name, set_media_tag, execute_command,
                                       get_save_calls_counter_in_postprocess_of_adjustable_file,
                                       get_postprocess_counter_of_adjustable_file, import_mock)
@@ -23,12 +23,12 @@ class BaseOrphanedMediaCommandTestsMixin(object):
     def setUpClass(cls):
         super(BaseOrphanedMediaCommandTestsMixin, cls).setUpClass()
         set_media_tag(get_random_name())
-        TestModelWithoutFile.objects.create(name='without file')
-        TestModel.objects.create(name='without file')
-        TestImageModel.objects.create(name='without image')
-        cls.file = cls.add_file_to_model(TestModel(name='with file')).file.name
-        cls.file_2 = cls.add_file_to_model(TestModel(name='with file')).file.name
-        image_model_instance = cls.add_file_to_model(TestImageModel(name='with file and image'))
+        TestWithoutMediaModel.objects.create(name='without file')
+        TestFileFieldModel.objects.create(name='without file')
+        TestFileAndImageFieldModel.objects.create(name='without image')
+        cls.file = cls.add_file_to_model(TestFileFieldModel(name='with file')).file.name
+        cls.file_2 = cls.add_file_to_model(TestFileFieldModel(name='with file')).file.name
+        image_model_instance = cls.add_file_to_model(TestFileAndImageFieldModel(name='with file and image'))
         cls.file_removed = image_model_instance.file.name
         cls.add_file_to_model(image_model_instance)
         cls.file_removed_2 = image_model_instance.file.name
@@ -60,11 +60,11 @@ class BaseOrphanedMediaCommandTestsMixin(object):
 
 STATIC_FILES = (
     os.path.join('tests', 'css', 'style.css'),
-    os.path.join('tests', 'images', 'dummy-static-image.jpg')
+    os.path.join('tests', 'images', 'default-image.jpg')
 )
 
 
-@override_settings(STATICFILES_STORAGE='imagekit_storage.storage.StaticImagekitStorage')
+@override_settings(STATICFILES_STORAGE='imagekitio_storage.storage.StaticImagekitStorage')
 class CollectStaticCommandTests(SimpleTestCase):
     @mock.patch.object(StaticImagekitStorage, 'save')
     def test_command_saves_static_files(self, save_mock):
@@ -78,7 +78,7 @@ class CollectStaticCommandTests(SimpleTestCase):
             self.assertIn('2 static files copied.', output)
 
 
-@override_settings(STATICFILES_STORAGE='imagekit_storage.storage.StaticHashedImagekitStorage')
+@override_settings(STATICFILES_STORAGE='imagekitio_storage.storage.StaticHashedImagekitStorage')
 @mock.patch.object(StaticHashedImagekitStorage, '_save')
 class CollectStaticCommandWithHashedStorageTests(SimpleTestCase):
     @mock.patch.object(StaticHashedImagekitStorage, 'save_manifest')

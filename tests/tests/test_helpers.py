@@ -7,8 +7,8 @@ from django.core.files import File
 from django.core.management import call_command
 from django.utils import version
 
-from imagekit_storage import app_settings
-from imagekit_storage.storage import MediaImagekitStorage, StaticHashedImagekitStorage, HashedFilesMixin
+from imagekitio_storage import app_settings
+from imagekitio_storage.storage import MediaImagekitStorage, StaticHashedImagekitStorage, HashedFilesMixin
 
 
 def get_random_name():
@@ -34,8 +34,8 @@ class StaticHashedStorageTestsMixin(object):
         content = File(open(os.path.join('tests', 'static', 'tests', 'css', 'style.css'), 'rb'))
         cls.style_hash = hash_mixin.file_hash('tests/css/style.css', content)
         content.close()
-        content = File(open(os.path.join('tests', 'static', 'tests', 'images', 'dummy-static-image.jpg'), 'rb'))
-        cls.image_hash = hash_mixin.file_hash('tests/images/dummy-static-image.jpg', content)
+        content = File(open(os.path.join('tests', 'static', 'tests', 'images', 'default-image.jpg'), 'rb'))
+        cls.image_hash = hash_mixin.file_hash('tests/images/default-image.jpg', content)
         content.close()
         name = StaticHashedImagekitStorage.manifest_name
         cls.manifest_path = os.path.join(app_settings.STATICFILES_MANIFEST_ROOT, name)
