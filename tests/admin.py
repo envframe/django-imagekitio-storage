@@ -1,8 +1,10 @@
 from django.contrib import admin
 
-from .models import TestImageModel, TestVideoModel, TestModel, TestModelWithoutFile
+from .models import TestFileAndImageFieldModel, TestFileFieldVideoModel, TestFileFieldModel, TestWithoutMediaModel, \
+    TestThirdPartyFieldModel
 
-admin.site.register(TestImageModel)
-admin.site.register(TestVideoModel)
-admin.site.register(TestModel)
-admin.site.register(TestModelWithoutFile)
+admin.site.register(TestFileAndImageFieldModel)
+admin.site.register(TestFileFieldVideoModel)
+admin.site.register(TestFileFieldModel)
+admin.site.register(TestWithoutMediaModel)
+admin.site.register(TestThirdPartyFieldModel)

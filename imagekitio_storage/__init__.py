@@ -1,8 +1,9 @@
-import os
 import logging
+import os
 from operator import itemgetter
-from django.core.exceptions import ImproperlyConfigured
+
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from imagekitio import ImageKit
 
 logger = logging.getLogger("imagekit-storage")
@@ -51,4 +52,4 @@ def get_credentials(user_attrs=user_settings):
 
 
 USER_CREDENTIALS = get_credentials()
-imagekit = ImageKit(**USER_CREDENTIALS)
+ik_api = ImageKit(**USER_CREDENTIALS)

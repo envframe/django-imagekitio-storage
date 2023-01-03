@@ -1,10 +1,10 @@
 import os
 
-from django.test import SimpleTestCase, override_settings
 from django.core.exceptions import ImproperlyConfigured
+from django.test import SimpleTestCase, override_settings
 
-from imagekit_storage.app_settings import set_credentials
-from imagekit_storage import app_settings
+from imagekitio_storage import app_settings
+from imagekitio_storage.app_settings import set_credentials
 from .test_helpers import import_mock
 
 mock = import_mock()
@@ -25,7 +25,7 @@ class SetCredentialsWithoutEnvVariablesTests(SimpleTestCase):
     def test_missing_PUBLIC_KEY_setting_raises_error(self):
         self.assert_incomplete_settings_raise_error({'PRIVATE_KEY': 'private_key', 'URL_ENDPOINT': 'url_endpoint'})
 
-    @mock.patch('imagekit_storage.app_settings.imagekit.config')
+    @mock.patch('imagekitio_storage.app_settings.imagekit.config')
     def test_proper_configuration_correctly_sets_credentials(self, config_mock):
         set_credentials({'PRIVATE_KEY': 'private_key', 'URL_ENDPOINT': 'url_endpoint', 'PUBLIC_KEY': 'public_key'})
         config_mock.assert_called_once_with(private_key='private_key', url_endpoint='url_endpoint',
@@ -52,7 +52,7 @@ class SetCredentialsWithEnvVariablesTests(SimpleTestCase):
     def test_missing_PUBLIC_KEY_variable_raises_error(self):
         self.assert_incomplete_settings_raise_error()
 
-    @mock.patch('imagekit_storage.app_settings.imagekit.config')
+    @mock.patch('imagekitio_storage.app_settings.imagekit.config')
     @mock.patch.dict(os.environ,
                      {
                          'IMAGEKIT_PRIVATE_KEY': 'private_key',
@@ -65,7 +65,7 @@ class SetCredentialsWithEnvVariablesTests(SimpleTestCase):
         self.assertFalse(config_mock.called)
 
     @mock.patch.dict(os.environ, {'IMAGEKIT_URL': 'my-url'}, clear=True)
-    @mock.patch('imagekit_storage.app_settings.imagekit.config')
+    @mock.patch('imagekitio_storage.app_settings.imagekit.config')
     def test_IMAGEKIT_URL_env_variable_doesnt_raise_error(self, config_mock):
         set_credentials({})
         self.assertFalse(config_mock.called)
