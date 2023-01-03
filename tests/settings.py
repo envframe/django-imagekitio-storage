@@ -119,9 +119,9 @@ MEDIA_URL = 'media/'
 DEFAULT_FILE_STORAGE = 'imagekitio_storage.storage.MediaImagekitStorage'
 
 IMAGEKIT_STORAGE = {
-    'PRIVATE_KEY': os.getenv('IMAGEKIT_PRIVATE_KEY', 'private_BX/Nw0cADw/3wKUQiLUNw6bnpEI='),
-    'PUBLIC_KEY': os.getenv('IMAGEKIT_PUBLIC_KEY', 'public_r/hByK8XZphyeVAFL5pkneSMa60='),
-    'URL_ENDPOINT': os.getenv('IMAGEKIT_URL_ENDPOINT', 'https://ik.imagekit.io/envframe'),
+    'PRIVATE_KEY': os.getenv('IMAGEKIT_PRIVATE_KEY', 'private_BX/Nw0cADw/xxx='),
+    'PUBLIC_KEY': os.getenv('IMAGEKIT_PUBLIC_KEY', 'public_r/xxx='),
+    'URL_ENDPOINT': os.getenv('IMAGEKIT_URL_ENDPOINT', 'https://ik.imagekit.io/xxx'),
     'MEDIA_TAG': MEDIA_URL,
     'INVALID_VIDEO_ERROR_MESSAGE': 'Please upload a valid video file.',
     'STATIC_TAG': STATIC_URL,
